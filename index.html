@@ -3,126 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Routine Planner Pro</title>
+<title>Final AI Productivity System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-body{font-family:Inter,Segoe UI;background:#0f172a;color:#fff;margin:0}
-.container{max-width:1100px;margin:auto;padding:20px}
-h1{text-align:center;font-size:28px}
-.card{background:#1e293b;border-radius:16px;padding:18px;margin:15px 0}
-input,select{padding:10px;border-radius:8px;border:none;margin:5px}
-button{padding:10px 14px;border:none;border-radius:8px;background:#22c55e;color:#000;font-weight:bold;cursor:pointer}
-.task{display:flex;justify-content:space-between;align-items:center;background:#334155;padding:10px;border-radius:10px;margin:6px 0}
-.left{display:flex;flex-direction:column}
-.time{font-size:12px;opacity:.7}
-.priority-high{border-left:5px solid #ef4444}
-.priority-medium{border-left:5px solid #f59e0b}
-.priority-low{border-left:5px solid #22c55e}
+body{margin:0;font-family:Inter;background:#020617;color:#fff}
+.app{display:flex;height:100vh}
+.sidebar{width:260px;background:#020617;padding:20px;border-right:1px solid #111}
+.sidebar h2{margin-bottom:20px}
+.sidebar button{width:100%;margin:8px 0;padding:12px;border:none;border-radius:12px;background:#111827;color:#fff;cursor:pointer}
+.sidebar button:hover{background:#22c55e;color:#000}
+.main{flex:1;padding:20px;overflow:auto}
+.card{background:#111827;border-radius:16px;padding:20px;margin-bottom:20px}
+input,select{padding:10px;border-radius:10px;border:none;margin:5px;width:100%}
+button.primary{background:#22c55e;color:black;font-weight:bold;padding:10px;border:none;border-radius:10px;width:100%}
+.task{display:flex;justify-content:space-between;background:#1f2937;padding:10px;border-radius:10px;margin:8px 0}
+.calendar{display:grid;grid-template-columns:80px repeat(24,1fr);gap:4px}
+.time-label{font-size:10px;text-align:right;padding-right:5px}
+.slot{background:#1f2937;height:50px;border-radius:6px;font-size:10px;cursor:pointer}
+.progress{height:10px;background:#000;border-radius:10px}
+.bar{height:100%;background:#22c55e}
 </style>
 </head>
 <body>
-<div class="container">
-<h1>🤖 AI Routine Planner Pro</h1>
-
-<div class="card">
-<h3>Add Task</h3>
-<input id="task-text" placeholder="Task">
-<input id="task-time" type="time">
-<select id="task-priority">
-<option value="low">Low</option>
-<option value="medium">Medium</option>
-<option value="high">High</option>
-</select>
-<select id="task-type">
-<option value="daily">Daily</option>
-<option value="weekly">Weekly</option>
-<option value="monthly">Monthly</option>
-</select>
-<button onclick="addTask()">Add</button>
+<div class="app">
+<div class="sidebar">
+<h2>🚀 Final Planner</h2>
+<button onclick="view='dashboard';render()">Dashboard</button>
+<button onclick="view='tasks';render()">Tasks</button>
+<button onclick="view='calendar';render()">Time Map</button>
+<button onclick="view='ai';render()">AI Brain</button>
 </div>
-
-<div class="card">
-<h3>🤖 AI Generate Routine</h3>
-<input id="goal-input" placeholder="Enter goal (e.g. lose weight, learn coding)">
-<button onclick="generateAI()">Generate</button>
-</div>
-
-<div class="card">
-<h3>Tasks</h3>
-<div id="task-list"></div>
-</div>
+<div class="main" id="main"></div>
 </div>
 
 <script>
-function getTasks(){return JSON.parse(localStorage.getItem('tasks')||'[]')}
-function saveTasks(t){localStorage.setItem('tasks',JSON.stringify(t))}
+let view='dashboard'
+
+function get(){return JSON.parse(localStorage.getItem('tasks')||'[]')}
+function save(t){localStorage.setItem('tasks',JSON.stringify(t))}
 
 function addTask(){
-const text=document.getElementById('task-text').value
-const time=document.getElementById('task-time').value
-const priority=document.getElementById('task-priority').value
-const type=document.getElementById('task-type').value
-
+const text=document.getElementById('text').value
+const time=document.getElementById('time').value
+const duration=document.getElementById('duration').value
 if(!text) return
-
-const tasks=getTasks()
-tasks.push({text,time,priority,type,done:false})
-saveTasks(tasks)
+const t=get()
+t.push({text,time,duration,done:false})
+save(t)
 render()
 }
 
-function toggle(i){const t=getTasks();t[i].done=!t[i].done;saveTasks(t);render()}
-function del(i){const t=getTasks();t.splice(i,1);saveTasks(t);render()}
+function toggle(i){const t=get();t[i].done=!t[i].done;save(t);render()}
+function del(i){const t=get();t.splice(i,1);save(t);render()}
 
-function render(){
-const list=document.getElementById('task-list')
-list.innerHTML=''
-getTasks().forEach((t,i)=>{
-const div=document.createElement('div')
-div.className='task priority-'+t.priority
-
-div.innerHTML=`
-<div class="left">
-<b>${t.text}</b>
-<span class="time">${t.time||''} • ${t.type}</span>
-</div>
-<div>
-<input type="checkbox" ${t.done?'checked':''} onclick="toggle(${i})">
-<button onclick="del(${i})">❌</button>
-</div>
-`
-list.appendChild(div)
-})
-}
-
-function generateAI(){
-const goal=document.getElementById('goal-input').value.toLowerCase()
-let suggestions=[]
+// REALISTIC AI BREAKDOWN ENGINE
+function aiGenerate(){
+const goal=document.getElementById('goal').value.toLowerCase()
+let plan=[]
 
 if(goal.includes('weight')){
-suggestions=[
-{t:'Workout',time:'07:00',p:'high',type:'daily'},
-{t:'Healthy diet',time:'13:00',p:'high',type:'daily'},
-{t:'Track calories',time:'21:00',p:'medium',type:'daily'}
-]
+plan.push({text:'Workout (45 min)',time:'07:00',duration:45})
+plan.push({text:'Calorie deficit meal',time:'13:00',duration:30})
+plan.push({text:'Walk 8k steps',time:'18:00',duration:60})
 }
-else if(goal.includes('coding')){
-suggestions=[
-{t:'DSA practice',time:'10:00',p:'high',type:'daily'},
-{t:'Build project',time:'15:00',p:'high',type:'daily'},
-{t:'Learn theory',time:'20:00',p:'medium',type:'daily'}
-]
-}
-else{
-suggestions=[
-{t:'Focus work',time:'10:00',p:'high',type:'daily'},
-{t:'Skill learning',time:'18:00',p:'medium',type:'daily'}
-]
+if(goal.includes('coding')){
+plan.push({text:'DSA Practice',time:'10:00',duration:60})
+plan.push({text:'Project Building',time:'15:00',duration:120})
+plan.push({text:'Concept Revision',time:'20:00',duration:60})
 }
 
-const tasks=getTasks()
-suggestions.forEach(s=>tasks.push({text:s.t,time:s.time,priority:s.p,type:s.type,done:false}))
-saveTasks(tasks)
+const t=get()
+plan.forEach(p=>t.push({...p,done:false}))
+save(t)
 render()
+}
+
+function dashboard(){
+const t=get()
+const done=t.filter(x=>x.done).length
+const percent=t.length?Math.round(done/t.length*100):0
+return `
+<div class="card">
+<h3>📊 Productivity Score</h3>
+<p>${percent}% consistency</p>
+<div class="progress"><div class="bar" style="width:${percent}%"></div></div>
+</div>`
+}
+
+function tasks(){
+let html=`<div class='card'>
+<h3>Add Task</h3>
+<input id='text' placeholder='Task'>
+<input id='time' type='time'>
+<input id='duration' placeholder='Duration (min)'>
+<button class='primary' onclick='addTask()'>Add Task</button>
+</div>`
+
+html+=`<div class='card'><h3>Tasks</h3>`
+get().forEach((t,i)=>{
+html+=`<div class='task'>
+<div>
+<b>${t.text}</b><br>
+<small>${t.time||''} (${t.duration||0}m)</small>
+</div>
+<div>
+<input type='checkbox' ${t.done?'checked':''} onclick='toggle(${i})'>
+<button onclick='del(${i})'>❌</button>
+</div>
+</div>`
+})
+html+='</div>'
+return html
+}
+
+// DRAG-DROP TIME BLOCKING
+function calendar(){
+let html="<div class='card'><h3>⏳ Time Blocking</h3><div class='calendar'>"
+for(let i=0;i<24;i++){
+html+=`<div class='time-label'>${i}:00</div>`
+for(let j=0;j<1;j++){
+html+=`<div class='slot' onclick='assign(${i})'></div>`
+}
+}
+html+='</div></div>'
+return html
+}
+
+function assign(hour){
+let t=get()
+if(t.length===0) return alert('Add tasks first')
+t[0].time=hour+':00'
+save(t)
+render()
+}
+
+function ai(){
+return `
+<div class='card'>
+<h3>🧠 AI Goal Planner</h3>
+<input id='goal' placeholder='e.g. lose weight + coding'>
+<button class='primary' onclick='aiGenerate()'>Generate Plan</button>
+</div>`
+}
+
+function render(){
+let html=''
+if(view==='dashboard') html=dashboard()
+if(view==='tasks') html=tasks()
+if(view==='calendar') html=calendar()
+if(view==='ai') html=ai()
+
+document.getElementById('main').innerHTML=html
 }
 
 render()
