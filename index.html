@@ -3,37 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Final AI Productivity System</title>
+<title>Elite Planner ✨</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:Inter;background:#020617;color:#fff}
+body{margin:0;font-family:Inter;background:radial-gradient(circle at top,#1e293b,#020617);color:#fff}
 .app{display:flex;height:100vh}
-.sidebar{width:260px;background:#020617;padding:20px;border-right:1px solid #111}
-.sidebar h2{margin-bottom:20px}
-.sidebar button{width:100%;margin:8px 0;padding:12px;border:none;border-radius:12px;background:#111827;color:#fff;cursor:pointer}
-.sidebar button:hover{background:#22c55e;color:#000}
-.main{flex:1;padding:20px;overflow:auto}
-.card{background:#111827;border-radius:16px;padding:20px;margin-bottom:20px}
-input,select{padding:10px;border-radius:10px;border:none;margin:5px;width:100%}
-button.primary{background:#22c55e;color:black;font-weight:bold;padding:10px;border:none;border-radius:10px;width:100%}
-.task{display:flex;justify-content:space-between;background:#1f2937;padding:10px;border-radius:10px;margin:8px 0}
-.calendar{display:grid;grid-template-columns:80px repeat(24,1fr);gap:4px}
-.time-label{font-size:10px;text-align:right;padding-right:5px}
-.slot{background:#1f2937;height:50px;border-radius:6px;font-size:10px;cursor:pointer}
-.progress{height:10px;background:#000;border-radius:10px}
-.bar{height:100%;background:#22c55e}
+.sidebar{width:260px;background:rgba(255,255,255,0.03);backdrop-filter:blur(25px);padding:20px;border-right:1px solid rgba(255,255,255,0.1)}
+.sidebar h2{margin-bottom:25px}
+.sidebar button{width:100%;margin:8px 0;padding:12px;border:none;border-radius:14px;background:rgba(255,255,255,0.05);color:#fff;cursor:pointer;transition:.3s}
+.sidebar button:hover{background:linear-gradient(135deg,#22c55e,#4ade80);color:#000;transform:translateX(6px)}
+.main{flex:1;padding:30px;overflow:auto}
+.card{background:rgba(255,255,255,0.04);backdrop-filter:blur(25px);border-radius:22px;padding:25px;margin-bottom:25px;box-shadow:0 15px 50px rgba(0,0,0,0.5);transition:.3s}
+.card:hover{transform:translateY(-6px) scale(1.01)}
+h2{margin-top:0}
+input,select{padding:12px;border-radius:12px;border:none;margin:8px 0;width:100%;background:#020617;color:#fff}
+button.primary{background:linear-gradient(135deg,#22c55e,#4ade80);color:#000;font-weight:600;padding:12px;border:none;border-radius:12px;width:100%;transition:.3s}
+button.primary:hover{transform:scale(1.05);box-shadow:0 0 20px #22c55e}
+.task{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.05);padding:14px;border-radius:14px;margin:10px 0;transition:.3s}
+.task:hover{transform:scale(1.02);background:rgba(255,255,255,0.08)}
+.meta{font-size:12px;opacity:.7}
+.high{border-left:5px solid #ef4444}
+.medium{border-left:5px solid #f59e0b}
+.low{border-left:5px solid #22c55e}
+.calendar{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.slot{background:rgba(255,255,255,0.05);padding:25px;border-radius:16px;text-align:center;cursor:pointer;transition:.3s}
+.slot:hover{background:linear-gradient(135deg,#22c55e,#4ade80);color:#000;transform:scale(1.05)}
+.progress{height:12px;background:#111;border-radius:20px;margin-top:12px}
+.bar{height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.stat{background:rgba(255,255,255,0.05);padding:15px;border-radius:14px;text-align:center}
 </style>
 </head>
 <body>
 <div class="app">
+
 <div class="sidebar">
-<h2>🚀 Final Planner</h2>
-<button onclick="view='dashboard';render()">Dashboard</button>
-<button onclick="view='tasks';render()">Tasks</button>
-<button onclick="view='calendar';render()">Time Map</button>
-<button onclick="view='ai';render()">AI Brain</button>
+<h2>✨ Elite Planner</h2>
+<button onclick="view='dashboard';render()">📊 Dashboard</button>
+<button onclick="view='tasks';render()">✅ Tasks</button>
+<button onclick="view='calendar';render()">📅 Planner</button>
+<button onclick="view='ai';render()">🤖 AI</button>
 </div>
+
 <div class="main" id="main"></div>
+
 </div>
 
 <script>
@@ -45,66 +58,47 @@ function save(t){localStorage.setItem('tasks',JSON.stringify(t))}
 function addTask(){
 const text=document.getElementById('text').value
 const time=document.getElementById('time').value
-const duration=document.getElementById('duration').value
+const priority=document.getElementById('priority').value
 if(!text) return
-const t=get()
-t.push({text,time,duration,done:false})
-save(t)
-render()
+const t=get();t.push({text,time,priority,done:false});save(t);render()
 }
 
 function toggle(i){const t=get();t[i].done=!t[i].done;save(t);render()}
 function del(i){const t=get();t.splice(i,1);save(t);render()}
 
-// REALISTIC AI BREAKDOWN ENGINE
-function aiGenerate(){
-const goal=document.getElementById('goal').value.toLowerCase()
-let plan=[]
-
-if(goal.includes('weight')){
-plan.push({text:'Workout (45 min)',time:'07:00',duration:45})
-plan.push({text:'Calorie deficit meal',time:'13:00',duration:30})
-plan.push({text:'Walk 8k steps',time:'18:00',duration:60})
-}
-if(goal.includes('coding')){
-plan.push({text:'DSA Practice',time:'10:00',duration:60})
-plan.push({text:'Project Building',time:'15:00',duration:120})
-plan.push({text:'Concept Revision',time:'20:00',duration:60})
-}
-
-const t=get()
-plan.forEach(p=>t.push({...p,done:false}))
-save(t)
-render()
-}
-
 function dashboard(){
-const t=get()
-const done=t.filter(x=>x.done).length
+const t=get();const done=t.filter(x=>x.done).length
 const percent=t.length?Math.round(done/t.length*100):0
-return `
-<div class="card">
-<h3>📊 Productivity Score</h3>
-<p>${percent}% consistency</p>
-<div class="progress"><div class="bar" style="width:${percent}%"></div></div>
+return `<div class='card'>
+<h2>📊 Productivity Dashboard</h2>
+<div class='grid'>
+<div class='stat'>Tasks<br><b>${t.length}</b></div>
+<div class='stat'>Completed<br><b>${done}</b></div>
+<div class='stat'>Score<br><b>${percent}%</b></div>
+</div>
+<div class='progress'><div class='bar' style='width:${percent}%'></div></div>
 </div>`
 }
 
 function tasks(){
 let html=`<div class='card'>
-<h3>Add Task</h3>
+<h2>Add Task</h2>
 <input id='text' placeholder='Task'>
 <input id='time' type='time'>
-<input id='duration' placeholder='Duration (min)'>
-<button class='primary' onclick='addTask()'>Add Task</button>
+<select id='priority'>
+<option value='high'>🔥 High</option>
+<option value='medium'>⚡ Medium</option>
+<option value='low'>🌿 Low</option>
+</select>
+<button class='primary' onclick='addTask()'>➕ Add Task</button>
 </div>`
 
-html+=`<div class='card'><h3>Tasks</h3>`
+html+=`<div class='card'><h2>Your Tasks</h2>`
 get().forEach((t,i)=>{
-html+=`<div class='task'>
+html+=`<div class='task ${t.priority}'>
 <div>
-<b>${t.text}</b><br>
-<small>${t.time||''} (${t.duration||0}m)</small>
+<b>${t.text}</b>
+<div class='meta'>${t.time||''} • ${t.priority}</div>
 </div>
 <div>
 <input type='checkbox' ${t.done?'checked':''} onclick='toggle(${i})'>
@@ -116,34 +110,27 @@ html+='</div>'
 return html
 }
 
-// DRAG-DROP TIME BLOCKING
 function calendar(){
-let html="<div class='card'><h3>⏳ Time Blocking</h3><div class='calendar'>"
-for(let i=0;i<24;i++){
-html+=`<div class='time-label'>${i}:00</div>`
-for(let j=0;j<1;j++){
-html+=`<div class='slot' onclick='assign(${i})'></div>`
-}
-}
+let html="<div class='card'><h2>📅 Planner</h2><div class='calendar'>"
+for(let i=1;i<=12;i++) html+=`<div class='slot'>Slot ${i}</div>`
 html+='</div></div>'
 return html
 }
 
-function assign(hour){
-let t=get()
-if(t.length===0) return alert('Add tasks first')
-t[0].time=hour+':00'
-save(t)
-render()
-}
-
 function ai(){
-return `
-<div class='card'>
-<h3>🧠 AI Goal Planner</h3>
-<input id='goal' placeholder='e.g. lose weight + coding'>
+return `<div class='card'>
+<h2>🤖 AI Planner</h2>
+<input id='goal' placeholder='e.g. weight + coding'>
 <button class='primary' onclick='aiGenerate()'>Generate Plan</button>
 </div>`
+}
+
+function aiGenerate(){
+const goal=document.getElementById('goal').value.toLowerCase()
+let plan=[]
+if(goal.includes('weight')) plan.push({text:'Workout',time:'07:00',priority:'high'})
+if(goal.includes('coding')) plan.push({text:'DSA Practice',time:'10:00',priority:'high'})
+const t=get();plan.forEach(p=>t.push({...p,done:false}));save(t);render()
 }
 
 function render(){
