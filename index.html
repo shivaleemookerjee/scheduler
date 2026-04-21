@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Routine Planner</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 15px 0;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    label {
+      display: block;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      margin-right: 10px;
+      transform: scale(1.2);
+    }
+    .progress {
+      height: 20px;
+      background: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #00ffcc;
+      width: 0%;
+      transition: 0.3s;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✨ Routine Planner ✨</h1>
+
+    <div class="card">
+      <h2>🌅 Daily Routine</h2>
+      <div id="daily-tasks"></div>
+      <div class="progress"><div id="daily-progress" class="progress-bar"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>📅 Weekly Goals</h2>
+      <div id="weekly-tasks"></div>
+      <div class="progress"><div id="weekly-progress" class="progress-bar"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Monthly Goals</h2>
+      <div id="monthly-tasks"></div>
+      <div class="progress"><div id="monthly-progress" class="progress-bar"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>🛌 Rest Day (1 per week)</h2>
+      <p>Choose Sunday or any day to relax, reset, and reflect 💜</p>
+    </div>
+
+    <div class="footer">Made for consistency 💪</div>
+  </div>
+
+  <script>
+    const dailyTasks = [
+      "Wake up early",
+      "Workout / Walk",
+      "Study / Skill building",
+      "Work on project",
+      "Healthy meals",
+      "Read / Learn",
+      "Self-care",
+      "Sleep on time"
+    ];
+
+    const weeklyTasks = [
+      "Revise all topics",
+      "Complete 1 major project milestone",
+      "Organize notes",
+      "Track progress",
+      "Plan next week"
+    ];
+
+    const monthlyTasks = [
+      "Complete 1 big project",
+      "Improve one major skill",
+      "Read 1 book",
+      "Evaluate progress",
+      "Reset goals"
+    ];
+
+    function renderTasks(tasks, containerId, progressId) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      tasks.forEach((task, index) => {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.onchange = () => updateProgress(containerId, progressId);
+
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(task));
+        container.appendChild(label);
+      });
+    }
+
+    function updateProgress(containerId, progressId) {
+      const container = document.getElementById(containerId);
+      const checkboxes = container.querySelectorAll('input');
+      const checked = container.querySelectorAll('input:checked');
+      const percentage = (checked.length / checkboxes.length) * 100;
+
+      document.getElementById(progressId).style.width = percentage + '%';
+    }
+
+    renderTasks(dailyTasks, 'daily-tasks', 'daily-progress');
+    renderTasks(weeklyTasks, 'weekly-tasks', 'weekly-progress');
+    renderTasks(monthlyTasks, 'monthly-tasks', 'monthly-progress');
+  </script>
+</body>
+</html>
