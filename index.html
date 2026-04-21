@@ -1,148 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Routine Planner</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pro Routine App</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    .card {
-      background: rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 20px;
-      margin: 15px 0;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    label {
-      display: block;
-      margin: 8px 0;
-      cursor: pointer;
-    }
-    input[type="checkbox"] {
-      margin-right: 10px;
-      transform: scale(1.2);
-    }
-    .progress {
-      height: 20px;
-      background: #ddd;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 10px;
-    }
-    .progress-bar {
-      height: 100%;
-      background: #00ffcc;
-      width: 0%;
-      transition: 0.3s;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 20px;
-      opacity: 0.8;
-    }
+    body{font-family:Segoe UI,system-ui;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;margin:0}
+    .wrap{max-width:980px;margin:auto;padding:20px}
+    h1{text-align:center}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+    .card{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border-radius:18px;padding:18px;box-shadow:0 10px 25px rgba(0,0,0,.25)}
+    .row{display:flex;gap:8px;margin-bottom:10px}
+    input[type=text]{flex:1;padding:10px;border-radius:10px;border:none}
+    button{padding:10px 12px;border-radius:10px;border:none;background:#00ffcc;cursor:pointer}
+    .item{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .item span{flex:1}
+    .del{background:#ff6b6b}
+    .progress{height:14px;background:#ddd;border-radius:999px;overflow:hidden;margin-top:10px}
+    .bar{height:100%;background:#00ffcc;width:0}
+    .meta{display:flex;justify-content:space-between;font-size:13px;opacity:.9;margin-top:6px}
+    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .pill{background:rgba(0,0,0,.2);padding:6px 10px;border-radius:999px}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>✨ Routine Planner ✨</h1>
+  <div class="wrap">
+    <h1>⚡ Pro Routine Builder</h1>
 
-    <div class="card">
-      <h2>🌅 Daily Routine</h2>
-      <div id="daily-tasks"></div>
-      <div class="progress"><div id="daily-progress" class="progress-bar"></div></div>
+    <div class="grid">
+      <div class="card">
+        <div class="top"><h3>🌅 Daily</h3><div class="pill">🔥 Streak: <span id="daily-streak">0</span></div></div>
+        <div class="row"><input id="daily-input" placeholder="Add daily task"/><button onclick="add('daily')">Add</button></div>
+        <div id="daily-list"></div>
+        <div class="progress"><div id="daily-bar" class="bar"></div></div>
+        <div class="meta"><span id="daily-meta"></span><button onclick="resetPeriod('daily')">Reset Today</button></div>
+      </div>
+
+      <div class="card">
+        <div class="top"><h3>📅 Weekly</h3><div class="pill">🔥 Streak: <span id="weekly-streak">0</span></div></div>
+        <div class="row"><input id="weekly-input" placeholder="Add weekly goal"/><button onclick="add('weekly')">Add</button></div>
+        <div id="weekly-list"></div>
+        <div class="progress"><div id="weekly-bar" class="bar"></div></div>
+        <div class="meta"><span id="weekly-meta"></span><button onclick="resetPeriod('weekly')">Reset Week</button></div>
+      </div>
+
+      <div class="card">
+        <div class="top"><h3>🎯 Monthly</h3><div class="pill">🔥 Streak: <span id="monthly-streak">0</span></div></div>
+        <div class="row"><input id="monthly-input" placeholder="Add monthly goal"/><button onclick="add('monthly')">Add</button></div>
+        <div id="monthly-list"></div>
+        <div class="progress"><div id="monthly-bar" class="bar"></div></div>
+        <div class="meta"><span id="monthly-meta"></span><button onclick="resetPeriod('monthly')">Reset Month</button></div>
+      </div>
+
+      <div class="card">
+        <h3>🛌 Rest Day</h3>
+        <div class="row"><input id="rest-day" placeholder="e.g. Sunday"/><button onclick="saveRest()">Save</button></div>
+        <div class="meta"><span id="rest-meta"></span></div>
+      </div>
     </div>
-
-    <div class="card">
-      <h2>📅 Weekly Goals</h2>
-      <div id="weekly-tasks"></div>
-      <div class="progress"><div id="weekly-progress" class="progress-bar"></div></div>
-    </div>
-
-    <div class="card">
-      <h2>🎯 Monthly Goals</h2>
-      <div id="monthly-tasks"></div>
-      <div class="progress"><div id="monthly-progress" class="progress-bar"></div></div>
-    </div>
-
-    <div class="card">
-      <h2>🛌 Rest Day (1 per week)</h2>
-      <p>Choose Sunday or any day to relax, reset, and reflect 💜</p>
-    </div>
-
-    <div class="footer">Made for consistency 💪</div>
   </div>
 
   <script>
-    const dailyTasks = [
-      "Wake up early",
-      "Workout / Walk",
-      "Study / Skill building",
-      "Work on project",
-      "Healthy meals",
-      "Read / Learn",
-      "Self-care",
-      "Sleep on time"
-    ];
+    const periods = {
+      daily: () => new Date().toDateString(),
+      weekly: () => {
+        const d=new Date(); const onejan=new Date(d.getFullYear(),0,1);
+        const week=Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7);
+        return d.getFullYear()+"-W"+week;
+      },
+      monthly: () => {
+        const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1);
+      }
+    };
 
-    const weeklyTasks = [
-      "Revise all topics",
-      "Complete 1 major project milestone",
-      "Organize notes",
-      "Track progress",
-      "Plan next week"
-    ];
+    function key(t){return `pro-${t}`}
+    function load(t){return JSON.parse(localStorage.getItem(key(t)))||{items:[],stamp:null,streak:0,lastDone:false}}
+    function save(t,data){localStorage.setItem(key(t),JSON.stringify(data))}
 
-    const monthlyTasks = [
-      "Complete 1 big project",
-      "Improve one major skill",
-      "Read 1 book",
-      "Evaluate progress",
-      "Reset goals"
-    ];
+    function ensureCycle(t){
+      const data=load(t); const now=periods[t]();
+      if(data.stamp!==now){
+        // update streak
+        const completed = data.items.length>0 && data.items.every(i=>i.done);
+        if(completed && data.lastDone!==now){ data.streak = (data.streak||0)+1; }
+        else if(!completed && data.stamp){ data.streak = 0; }
+        data.items.forEach(i=>i.done=false);
+        data.stamp=now; data.lastDone = completed? now : data.lastDone;
+        save(t,data);
+      }
+    }
 
-    function renderTasks(tasks, containerId, progressId) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
+    function add(t){
+      const inp=document.getElementById(t+'-input'); const v=inp.value.trim(); if(!v) return;
+      const d=load(t); d.items.push({text:v,done:false}); save(t,d); inp.value=''; render(t);
+    }
 
-      tasks.forEach((task, index) => {
-        const label = document.createElement('label');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.onchange = () => updateProgress(containerId, progressId);
+    function toggle(t,i){ const d=load(t); d.items[i].done=!d.items[i].done; save(t,d); render(t); }
+    function del(t,i){ const d=load(t); d.items.splice(i,1); save(t,d); render(t); }
 
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(task));
-        container.appendChild(label);
+    function resetPeriod(t){ const d=load(t); d.items.forEach(i=>i.done=false); d.stamp=periods[t](); save(t,d); render(t); }
+
+    function render(t){ ensureCycle(t); const d=load(t);
+      const list=document.getElementById(t+'-list'); list.innerHTML='';
+      d.items.forEach((it,i)=>{
+        const div=document.createElement('div'); div.className='item';
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=it.done; cb.onchange=()=>toggle(t,i);
+        const sp=document.createElement('span'); sp.textContent=it.text;
+        const b=document.createElement('button'); b.textContent='❌'; b.className='del'; b.onclick=()=>del(t,i);
+        div.append(cb,sp,b); list.appendChild(div);
       });
+      const total=d.items.length||1; const done=d.items.filter(i=>i.done).length;
+      document.getElementById(t+'-bar').style.width=(done/total*100)+'%';
+      document.getElementById(t+'-meta').textContent=`${done}/${d.items.length} completed`;
+      document.getElementById(t+'-streak').textContent=d.streak||0;
     }
 
-    function updateProgress(containerId, progressId) {
-      const container = document.getElementById(containerId);
-      const checkboxes = container.querySelectorAll('input');
-      const checked = container.querySelectorAll('input:checked');
-      const percentage = (checked.length / checkboxes.length) * 100;
+    function saveRest(){ const v=document.getElementById('rest-day').value; localStorage.setItem('rest-day',v); renderRest(); }
+    function renderRest(){ document.getElementById('rest-meta').textContent = 'Rest Day: '+(localStorage.getItem('rest-day')||'Not set'); }
 
-      document.getElementById(progressId).style.width = percentage + '%';
-    }
-
-    renderTasks(dailyTasks, 'daily-tasks', 'daily-progress');
-    renderTasks(weeklyTasks, 'weekly-tasks', 'weekly-progress');
-    renderTasks(monthlyTasks, 'monthly-tasks', 'monthly-progress');
+    ['daily','weekly','monthly'].forEach(render); renderRest();
   </script>
 </body>
 </html>
