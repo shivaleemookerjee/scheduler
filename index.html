@@ -1,125 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pro Routine App</title>
-  <style>
-    body{font-family:Segoe UI,system-ui;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;margin:0}
-    .wrap{max-width:980px;margin:auto;padding:20px}
-    h1{text-align:center}
-    .grid{display:grid;grid-template-columns:1fr;gap:16px}
-    @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
-    .card{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border-radius:18px;padding:18px;box-shadow:0 10px 25px rgba(0,0,0,.25)}
-    .row{display:flex;gap:8px;margin-bottom:10px}
-    input[type=text]{flex:1;padding:10px;border-radius:10px;border:none}
-    button{padding:10px 12px;border-radius:10px;border:none;background:#00ffcc;cursor:pointer}
-    .item{display:flex;align-items:center;gap:10px;margin:8px 0}
-    .item span{flex:1}
-    .del{background:#ff6b6b}
-    .progress{height:14px;background:#ddd;border-radius:999px;overflow:hidden;margin-top:10px}
-    .bar{height:100%;background:#00ffcc;width:0}
-    .meta{display:flex;justify-content:space-between;font-size:13px;opacity:.9;margin-top:6px}
-    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .pill{background:rgba(0,0,0,.2);padding:6px 10px;border-radius:999px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Routine Planner Pro</title>
+<style>
+body{font-family:Inter,Segoe UI;background:#0f172a;color:#fff;margin:0}
+.container{max-width:1100px;margin:auto;padding:20px}
+h1{text-align:center;font-size:28px}
+.card{background:#1e293b;border-radius:16px;padding:18px;margin:15px 0}
+input,select{padding:10px;border-radius:8px;border:none;margin:5px}
+button{padding:10px 14px;border:none;border-radius:8px;background:#22c55e;color:#000;font-weight:bold;cursor:pointer}
+.task{display:flex;justify-content:space-between;align-items:center;background:#334155;padding:10px;border-radius:10px;margin:6px 0}
+.left{display:flex;flex-direction:column}
+.time{font-size:12px;opacity:.7}
+.priority-high{border-left:5px solid #ef4444}
+.priority-medium{border-left:5px solid #f59e0b}
+.priority-low{border-left:5px solid #22c55e}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>⚡ Pro Routine Builder</h1>
+<div class="container">
+<h1>🤖 AI Routine Planner Pro</h1>
 
-    <div class="grid">
-      <div class="card">
-        <div class="top"><h3>🌅 Daily</h3><div class="pill">🔥 Streak: <span id="daily-streak">0</span></div></div>
-        <div class="row"><input id="daily-input" placeholder="Add daily task"/><button onclick="add('daily')">Add</button></div>
-        <div id="daily-list"></div>
-        <div class="progress"><div id="daily-bar" class="bar"></div></div>
-        <div class="meta"><span id="daily-meta"></span><button onclick="resetPeriod('daily')">Reset Today</button></div>
-      </div>
+<div class="card">
+<h3>Add Task</h3>
+<input id="task-text" placeholder="Task">
+<input id="task-time" type="time">
+<select id="task-priority">
+<option value="low">Low</option>
+<option value="medium">Medium</option>
+<option value="high">High</option>
+</select>
+<select id="task-type">
+<option value="daily">Daily</option>
+<option value="weekly">Weekly</option>
+<option value="monthly">Monthly</option>
+</select>
+<button onclick="addTask()">Add</button>
+</div>
 
-      <div class="card">
-        <div class="top"><h3>📅 Weekly</h3><div class="pill">🔥 Streak: <span id="weekly-streak">0</span></div></div>
-        <div class="row"><input id="weekly-input" placeholder="Add weekly goal"/><button onclick="add('weekly')">Add</button></div>
-        <div id="weekly-list"></div>
-        <div class="progress"><div id="weekly-bar" class="bar"></div></div>
-        <div class="meta"><span id="weekly-meta"></span><button onclick="resetPeriod('weekly')">Reset Week</button></div>
-      </div>
+<div class="card">
+<h3>🤖 AI Generate Routine</h3>
+<input id="goal-input" placeholder="Enter goal (e.g. lose weight, learn coding)">
+<button onclick="generateAI()">Generate</button>
+</div>
 
-      <div class="card">
-        <div class="top"><h3>🎯 Monthly</h3><div class="pill">🔥 Streak: <span id="monthly-streak">0</span></div></div>
-        <div class="row"><input id="monthly-input" placeholder="Add monthly goal"/><button onclick="add('monthly')">Add</button></div>
-        <div id="monthly-list"></div>
-        <div class="progress"><div id="monthly-bar" class="bar"></div></div>
-        <div class="meta"><span id="monthly-meta"></span><button onclick="resetPeriod('monthly')">Reset Month</button></div>
-      </div>
+<div class="card">
+<h3>Tasks</h3>
+<div id="task-list"></div>
+</div>
+</div>
 
-      <div class="card">
-        <h3>🛌 Rest Day</h3>
-        <div class="row"><input id="rest-day" placeholder="e.g. Sunday"/><button onclick="saveRest()">Save</button></div>
-        <div class="meta"><span id="rest-meta"></span></div>
-      </div>
-    </div>
-  </div>
+<script>
+function getTasks(){return JSON.parse(localStorage.getItem('tasks')||'[]')}
+function saveTasks(t){localStorage.setItem('tasks',JSON.stringify(t))}
 
-  <script>
-    const periods = {
-      daily: () => new Date().toDateString(),
-      weekly: () => {
-        const d=new Date(); const onejan=new Date(d.getFullYear(),0,1);
-        const week=Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7);
-        return d.getFullYear()+"-W"+week;
-      },
-      monthly: () => {
-        const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1);
-      }
-    };
+function addTask(){
+const text=document.getElementById('task-text').value
+const time=document.getElementById('task-time').value
+const priority=document.getElementById('task-priority').value
+const type=document.getElementById('task-type').value
 
-    function key(t){return `pro-${t}`}
-    function load(t){return JSON.parse(localStorage.getItem(key(t)))||{items:[],stamp:null,streak:0,lastDone:false}}
-    function save(t,data){localStorage.setItem(key(t),JSON.stringify(data))}
+if(!text) return
 
-    function ensureCycle(t){
-      const data=load(t); const now=periods[t]();
-      if(data.stamp!==now){
-        // update streak
-        const completed = data.items.length>0 && data.items.every(i=>i.done);
-        if(completed && data.lastDone!==now){ data.streak = (data.streak||0)+1; }
-        else if(!completed && data.stamp){ data.streak = 0; }
-        data.items.forEach(i=>i.done=false);
-        data.stamp=now; data.lastDone = completed? now : data.lastDone;
-        save(t,data);
-      }
-    }
+const tasks=getTasks()
+tasks.push({text,time,priority,type,done:false})
+saveTasks(tasks)
+render()
+}
 
-    function add(t){
-      const inp=document.getElementById(t+'-input'); const v=inp.value.trim(); if(!v) return;
-      const d=load(t); d.items.push({text:v,done:false}); save(t,d); inp.value=''; render(t);
-    }
+function toggle(i){const t=getTasks();t[i].done=!t[i].done;saveTasks(t);render()}
+function del(i){const t=getTasks();t.splice(i,1);saveTasks(t);render()}
 
-    function toggle(t,i){ const d=load(t); d.items[i].done=!d.items[i].done; save(t,d); render(t); }
-    function del(t,i){ const d=load(t); d.items.splice(i,1); save(t,d); render(t); }
+function render(){
+const list=document.getElementById('task-list')
+list.innerHTML=''
+getTasks().forEach((t,i)=>{
+const div=document.createElement('div')
+div.className='task priority-'+t.priority
 
-    function resetPeriod(t){ const d=load(t); d.items.forEach(i=>i.done=false); d.stamp=periods[t](); save(t,d); render(t); }
+div.innerHTML=`
+<div class="left">
+<b>${t.text}</b>
+<span class="time">${t.time||''} • ${t.type}</span>
+</div>
+<div>
+<input type="checkbox" ${t.done?'checked':''} onclick="toggle(${i})">
+<button onclick="del(${i})">❌</button>
+</div>
+`
+list.appendChild(div)
+})
+}
 
-    function render(t){ ensureCycle(t); const d=load(t);
-      const list=document.getElementById(t+'-list'); list.innerHTML='';
-      d.items.forEach((it,i)=>{
-        const div=document.createElement('div'); div.className='item';
-        const cb=document.createElement('input'); cb.type='checkbox'; cb.checked=it.done; cb.onchange=()=>toggle(t,i);
-        const sp=document.createElement('span'); sp.textContent=it.text;
-        const b=document.createElement('button'); b.textContent='❌'; b.className='del'; b.onclick=()=>del(t,i);
-        div.append(cb,sp,b); list.appendChild(div);
-      });
-      const total=d.items.length||1; const done=d.items.filter(i=>i.done).length;
-      document.getElementById(t+'-bar').style.width=(done/total*100)+'%';
-      document.getElementById(t+'-meta').textContent=`${done}/${d.items.length} completed`;
-      document.getElementById(t+'-streak').textContent=d.streak||0;
-    }
+function generateAI(){
+const goal=document.getElementById('goal-input').value.toLowerCase()
+let suggestions=[]
 
-    function saveRest(){ const v=document.getElementById('rest-day').value; localStorage.setItem('rest-day',v); renderRest(); }
-    function renderRest(){ document.getElementById('rest-meta').textContent = 'Rest Day: '+(localStorage.getItem('rest-day')||'Not set'); }
+if(goal.includes('weight')){
+suggestions=[
+{t:'Workout',time:'07:00',p:'high',type:'daily'},
+{t:'Healthy diet',time:'13:00',p:'high',type:'daily'},
+{t:'Track calories',time:'21:00',p:'medium',type:'daily'}
+]
+}
+else if(goal.includes('coding')){
+suggestions=[
+{t:'DSA practice',time:'10:00',p:'high',type:'daily'},
+{t:'Build project',time:'15:00',p:'high',type:'daily'},
+{t:'Learn theory',time:'20:00',p:'medium',type:'daily'}
+]
+}
+else{
+suggestions=[
+{t:'Focus work',time:'10:00',p:'high',type:'daily'},
+{t:'Skill learning',time:'18:00',p:'medium',type:'daily'}
+]
+}
 
-    ['daily','weekly','monthly'].forEach(render); renderRest();
-  </script>
+const tasks=getTasks()
+suggestions.forEach(s=>tasks.push({text:s.t,time:s.time,priority:s.p,type:s.type,done:false}))
+saveTasks(tasks)
+render()
+}
+
+render()
+</script>
 </body>
 </html>
